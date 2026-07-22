@@ -93,8 +93,8 @@ npm test           # Vitest unit tests (scoring/section logic in src/lib)
   `{ schemaVersion, examType, title, student, totalQ, correctMark, wrongMark, answers[], targets:{neet,jee,test} }`.
 - Key **`omr:records`** — array of saved records:
   `{ id, schemaVersion, examType, title, student, savedAt(ISO), correctMark, wrongMark, totalQ,
-   answers[], score, maxMarks, correct, incorrect, unattempted, graded, attempted, accuracy,
-   sections:[{ name, color, c, w, u, marks, maxM, count }] }`.
+ answers[], score, maxMarks, correct, incorrect, unattempted, graded, attempted, accuracy,
+ sections:[{ name, color, c, w, u, marks, maxM, count }] }`.
 - Include `schemaVersion` and migrate old data on load rather than discarding it.
 - **Export/Import backup:** a JSON export/import of `omr:records` (and optionally `omr:current`) is
   in scope for v1, since storage is device-local and easy to lose.
@@ -116,25 +116,24 @@ npm test           # Vitest unit tests (scoring/section logic in src/lib)
 Browser print-to-PDF only (no libraries): a hidden print-only report + `@media print` +
 `window.print()`, with `print-color-adjust: exact`.
 
-## Version control & GitHub (production workflow)
+## Version control & GitHub
 
-Use Git/GitHub like a professional team — not one commit at the end.
+Kept deliberately simple for solo work — no CI, no Dependabot, no required PRs.
 
-- **`main` is protected and always deployable.** No direct pushes; all work lands via Pull Requests
-  with passing CI.
-- **Branch + PR flow:** short-lived `feat/…`, `fix/…`, `chore/…`, `docs/…` branches → PR with a
-  clear what/why/how-to-test description → **squash-merge** for a clean, linear history.
+- **Direct pushes to `main`** are the normal flow. No branch protection, no required status
+  checks, no mandatory PR review. Feature branches + PRs are fine to use when you want a review
+  checkpoint, but nothing enforces it.
 - **Conventional Commits** (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`); small, atomic,
   meaningful.
-- **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs install → lint → test → build on push and
-  PR; red pipeline blocks merge.
+- **No GitHub Actions CI.** Run `npm run lint`, `npm test`, and `npm run build` locally before
+  pushing — see rule 6 above.
 - **Hygiene:** `.gitignore` excludes `node_modules`, `out`, `.next`, env, editor files; **never
   commit secrets or build artifacts**; don't force-push shared branches.
-- **Templates/releases:** keep `.github/pull_request_template.md`; tag releases with SemVer
-  (`v1.0.0`) and cut GitHub Releases for milestones. Dependabot enabled for dependency-update PRs.
-- **Repo:** public, name `omr-evaluator`, MIT licensed.
-- **Netlify from GitHub:** `main` auto-deploys to production; PRs get deploy previews. Manual
-  drag-and-drop deploy is only a fallback.
+- **Repo:** public, name `omr-evaluator`, MIT licensed —
+  [github.com/DevrajParmarr/omr-evaluator](https://github.com/DevrajParmarr/omr-evaluator).
+- **Releases:** tag with SemVer (`v1.0.0`) at meaningful milestones; optional, not required per push.
+- **Netlify from GitHub:** `main` auto-deploys to production. Manual drag-and-drop deploy is only a
+  fallback.
 
 ## Deploy (Netlify, static export)
 
@@ -149,11 +148,11 @@ Use Git/GitHub like a professional team — not one commit at the end.
 ## Do / Don't
 
 - ✅ Ask when unsure · keep logic pure & tested · handle storage errors · stay accessible ·
-  work via feature branches + PRs with green CI · Conventional Commits · update this file on
+  run lint/test/build locally before pushing · Conventional Commits · update this file on
   decisions.
 - ❌ Add a backend/DB/`window.storage` · introduce Tailwind or a UI kit without asking · mix exam
-  types in one chart · leave the build/CI broken · push straight to `main` · commit
-  `node_modules`/`out`/`.next`/secrets · make silent scope or dependency changes.
+  types in one chart · leave the build broken · commit `node_modules`/`out`/`.next`/secrets ·
+  make silent scope or dependency changes.
 
 ## Decision log
 
@@ -174,6 +173,11 @@ _Record dated, one-line decisions as we make them so future sessions stay consis
 - **2026-07-22** — Export/Import JSON backup of records: **included** in v1 scope.
 - **2026-07-22** — Compare-two-attempts and CSV export: **deferred** past v1.
 - **2026-07-22** — i18n: **English only**, no scaffolding.
-- **2026-07-22** — Git workflow: **PR-based with branch protection** on `main` (not trunk-based).
-- **2026-07-22** — Repo: **public**, name **`omr-evaluator`**, **Dependabot enabled**, **MIT license**,
-  no custom domain.
+- **2026-07-22** — Repo: **public**, name **`omr-evaluator`**, **MIT license**, no custom domain —
+  [github.com/DevrajParmarr/omr-evaluator](https://github.com/DevrajParmarr/omr-evaluator).
+- **2026-07-22** — Git workflow **reversed**: tried PR-based branch protection + GitHub Actions CI +
+  Dependabot first, but the setup friction (device-flow auth repeatedly stalling for the `workflow`
+  OAuth scope, PR-vs-main-drift merge conflicts, immediate Dependabot noise) outweighed the benefit
+  for solo work. Simplified to **direct pushes to `main`, no CI, no Dependabot, no branch
+  protection** — see _Version control & GitHub_ above. Local `lint`/`test`/`build` before pushing is
+  the safety net instead.

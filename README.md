@@ -39,12 +39,12 @@ npm test          # unit tests
 ## Deployment
 
 Builds to a static export in `out/`, published via Netlify (`netlify.toml`). `main` auto-deploys to
-production; pull requests get deploy previews. See `CLAUDE.md` → _Deploy_ for details.
+production. See `CLAUDE.md` → _Deploy_ for details.
 
 ## Project phases
 
 1. **Discovery** — tech decisions, folder structure, task list. ✅ done
-2. **Scaffold, config & repo** — Next.js + TS project, tooling, CI, GitHub setup
+2. **Scaffold, config & repo** — Next.js + TS project, tooling, GitHub repo
 3. **Evaluate tab** — grading engine, mark buttons, keyboard shortcuts, answer sheet
 4. **Records tab** — history, stat cards, target tracker, charts, backup export/import
 5. **PDF export & polish** — print report, micro-interactions, accessibility, mobile pass
