@@ -132,7 +132,10 @@ Use Git/GitHub like a professional team — not one commit at the end.
   commit secrets or build artifacts**; don't force-push shared branches.
 - **Templates/releases:** keep `.github/pull_request_template.md`; tag releases with SemVer
   (`v1.0.0`) and cut GitHub Releases for milestones. Dependabot enabled for dependency-update PRs.
-- **Repo:** public, name `omr-evaluator`, MIT licensed.
+- **Repo:** public, name `omr-evaluator`, MIT licensed —
+  [github.com/DevrajParmarr/omr-evaluator](https://github.com/DevrajParmarr/omr-evaluator).
+  Branch protection on `main` requires a passing `build` status check and a PR (0 required
+  approvals, since solo); only squash-merge is enabled; force-push/deletion blocked.
 - **Netlify from GitHub:** `main` auto-deploys to production; PRs get deploy previews. Manual
   drag-and-drop deploy is only a fallback.
 
@@ -177,3 +180,9 @@ _Record dated, one-line decisions as we make them so future sessions stay consis
 - **2026-07-22** — Git workflow: **PR-based with branch protection** on `main` (not trunk-based).
 - **2026-07-22** — Repo: **public**, name **`omr-evaluator`**, **Dependabot enabled**, **MIT license**,
   no custom domain.
+- **2026-07-22** — Phase 1 scaffold pushed to
+  [github.com/DevrajParmarr/omr-evaluator](https://github.com/DevrajParmarr/omr-evaluator);
+  branch protection enabled on `main` (required `build` status check, PR required, squash-merge
+  only, force-push/deletion blocked). `ci.yml` was added via the GitHub web UI rather than pushed
+  from the CLI, because the local `gh` token lacked the `workflow` OAuth scope and repeated attempts
+  to add it via `gh auth refresh`/`gh auth login --scopes` stalled in this environment.
