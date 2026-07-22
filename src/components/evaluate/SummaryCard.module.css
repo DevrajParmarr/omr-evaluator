@@ -1,0 +1,33 @@
+.card {
+  padding: 1rem;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.heading {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat dt {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.stat dd {
+  font-size: 1.25rem;
+  font-weight: 700;
+}

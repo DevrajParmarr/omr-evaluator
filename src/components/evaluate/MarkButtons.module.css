@@ -1,0 +1,53 @@
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.button {
+  padding: 0.85rem 0.5rem;
+  border: 2px solid var(--color-line);
+  border-radius: 12px;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.correct {
+  border-color: var(--color-correct);
+  color: var(--color-correct);
+}
+
+.incorrect {
+  border-color: var(--color-incorrect);
+  color: var(--color-incorrect);
+}
+
+.unattempted {
+  border-color: var(--color-unattempted);
+  color: var(--color-unattempted);
+}
+
+@media (hover: hover) {
+  .correct:hover:not(:disabled) {
+    background-color: var(--color-correct);
+    color: var(--color-surface);
+  }
+
+  .incorrect:hover:not(:disabled) {
+    background-color: var(--color-incorrect);
+    color: var(--color-surface);
+  }
+
+  .unattempted:hover:not(:disabled) {
+    background-color: var(--color-unattempted);
+    color: var(--color-surface);
+  }
+}
