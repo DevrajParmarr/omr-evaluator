@@ -1,0 +1,5 @@
+node_modules
+.next
+out
+package-lock.json
+Prompt_for_CLaude_Code.md

@@ -30,16 +30,16 @@ npm test          # unit tests
 
 ## Exam presets
 
-| Type | Total Qs | Marking | Sections |
-|------|----------|---------|----------|
-| NEET | 180 | +4 / −1 | Physics 1–45, Chemistry 46–90, Botany 91–135, Zoology 136–180 |
-| JEE  | 75  | +4 / −1 | Physics 1–25, Chemistry 26–50, Maths 51–75 |
-| Test | custom | +4 / −1 (editable) | none |
+| Type | Total Qs | Marking            | Sections                                                      |
+| ---- | -------- | ------------------ | ------------------------------------------------------------- |
+| NEET | 180      | +4 / −1            | Physics 1–45, Chemistry 46–90, Botany 91–135, Zoology 136–180 |
+| JEE  | 75       | +4 / −1            | Physics 1–25, Chemistry 26–50, Maths 51–75                    |
+| Test | custom   | +4 / −1 (editable) | none                                                          |
 
 ## Deployment
 
 Builds to a static export in `out/`, published via Netlify (`netlify.toml`). `main` auto-deploys to
-production; pull requests get deploy previews. See `CLAUDE.md` → *Deploy* for details.
+production; pull requests get deploy previews. See `CLAUDE.md` → _Deploy_ for details.
 
 ## Project phases
 

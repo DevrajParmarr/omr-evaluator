@@ -26,16 +26,19 @@ Standing guidance for any AI session working in this repo. Read this first, ever
    proven beats clever.
 
 ## Commands
+
 ```bash
 npm install        # install deps
 npm run dev        # local dev server
 npm run build      # production build -> out/ (Next.js static export)
-npm run start       # not used for deploy (static export); serve `out/` locally to sanity-check
-npm run lint        # ESLint (next/core-web-vitals config; fix all warnings)
-npm test            # Vitest unit tests (scoring/section logic in src/lib)
+npm run preview    # serve `out/` locally to sanity-check the static build (not used for deploy)
+npm run lint       # ESLint (next/core-web-vitals config; fix all warnings)
+npm run format     # Prettier --write
+npm test           # Vitest unit tests (scoring/section logic in src/lib)
 ```
 
 ## Tech stack
+
 - **Next.js (App Router) + TypeScript**, deployed as a **static export** (`output: 'export'` in
   `next.config.ts`) — no SSR, no API routes, no server runtime. Chosen over Vite per an explicit
   stack decision on 2026-07-22 (see Decision log).
@@ -46,6 +49,7 @@ npm test            # Vitest unit tests (scoring/section logic in src/lib)
 - Persistence: **`localStorage` only**. Never add a backend, DB, or `window.storage`.
 
 ## Architecture & conventions
+
 - **Pure logic vs UI:** all scoring, section mapping, accuracy, and aggregation live in
   `src/lib/*.ts` as **pure functions** (no React) and are unit-tested with Vitest. Components
   contain no business logic.
@@ -69,6 +73,7 @@ npm test            # Vitest unit tests (scoring/section logic in src/lib)
 - **i18n:** English only; no translation scaffolding for now.
 
 ## Domain rules — DO NOT get these wrong
+
 - **Marking:** Correct **+4**, Incorrect **−1**, Unattempted **0** (all editable).
   `score = correct*correctMark − incorrect*wrongMark`; `attempted = correct + incorrect`;
   `accuracy% = round(correct/attempted*100)`.
@@ -83,17 +88,19 @@ npm test            # Vitest unit tests (scoring/section logic in src/lib)
   (different max marks) on the same axis.
 
 ## Data model (localStorage)
+
 - Key **`omr:current`** — in-progress sheet:
   `{ schemaVersion, examType, title, student, totalQ, correctMark, wrongMark, answers[], targets:{neet,jee,test} }`.
 - Key **`omr:records`** — array of saved records:
   `{ id, schemaVersion, examType, title, student, savedAt(ISO), correctMark, wrongMark, totalQ,
-     answers[], score, maxMarks, correct, incorrect, unattempted, graded, attempted, accuracy,
-     sections:[{ name, color, c, w, u, marks, maxM, count }] }`.
+   answers[], score, maxMarks, correct, incorrect, unattempted, graded, attempted, accuracy,
+   sections:[{ name, color, c, w, u, marks, maxM, count }] }`.
 - Include `schemaVersion` and migrate old data on load rather than discarding it.
 - **Export/Import backup:** a JSON export/import of `omr:records` (and optionally `omr:current`) is
   in scope for v1, since storage is device-local and easy to lose.
 
 ## Design tokens
+
 - paper `#E8E9E2` · surface `#FCFCFA` · ink `#212429` · muted `#71747B` · line `#D9D7CD`
 - correct/green `#1C8A4A` · incorrect/red `#D33F3B` · unattempted/grey `#9A9CA1`
 - subjects: Physics `#3B6FE0` · Chemistry `#E0871E` · Botany `#1C8A4A` · Zoology `#B0479B` · Maths `#B0479B`
@@ -105,11 +112,14 @@ npm test            # Vitest unit tests (scoring/section logic in src/lib)
 - **Dark mode:** deferred; v1 ships the single light "exam paper" palette above.
 
 ## PDF export
+
 Browser print-to-PDF only (no libraries): a hidden print-only report + `@media print` +
 `window.print()`, with `print-color-adjust: exact`.
 
 ## Version control & GitHub (production workflow)
+
 Use Git/GitHub like a professional team — not one commit at the end.
+
 - **`main` is protected and always deployable.** No direct pushes; all work lands via Pull Requests
   with passing CI.
 - **Branch + PR flow:** short-lived `feat/…`, `fix/…`, `chore/…`, `docs/…` branches → PR with a
@@ -127,6 +137,7 @@ Use Git/GitHub like a professional team — not one commit at the end.
   drag-and-drop deploy is only a fallback.
 
 ## Deploy (Netlify, static export)
+
 - Build → `out/` (Next.js `output: 'export'`, **not** `dist/`). `netlify.toml`: build
   `npm run build`, publish `out`, `NODE_VERSION=20`.
 - Static export produces a real HTML file per route, so no blanket SPA `/* → /index.html` rewrite is
@@ -136,6 +147,7 @@ Use Git/GitHub like a professional team — not one commit at the end.
 - No custom domain planned; Netlify auto-generated `*.netlify.app` subdomain.
 
 ## Do / Don't
+
 - ✅ Ask when unsure · keep logic pure & tested · handle storage errors · stay accessible ·
   work via feature branches + PRs with green CI · Conventional Commits · update this file on
   decisions.
@@ -144,7 +156,9 @@ Use Git/GitHub like a professional team — not one commit at the end.
   `node_modules`/`out`/`.next`/secrets · make silent scope or dependency changes.
 
 ## Decision log
+
 _Record dated, one-line decisions as we make them so future sessions stay consistent._
+
 - **2026-07-22** — Framework switched from the original Vite+React brief to **Next.js (App Router)
   with static export**, per explicit user request after trade-offs were discussed (no SSR/API-route
   need exists; static export keeps the "no backend" model intact).

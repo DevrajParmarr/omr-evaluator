@@ -1,0 +1,32 @@
+.nav {
+  border-bottom: 1px solid var(--color-line);
+  background-color: var(--color-surface);
+}
+
+.list {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  list-style: none;
+}
+
+.link {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.link[data-active] {
+  color: var(--color-ink);
+  background-color: var(--color-paper);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-ink);
+  }
+}
