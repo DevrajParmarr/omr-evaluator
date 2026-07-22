@@ -1,0 +1,15 @@
+.empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.title {
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-bottom: 0.25rem;
+}
+
+.description {
+  font-size: 0.9rem;
+}

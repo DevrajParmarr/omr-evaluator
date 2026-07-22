@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useMemo } from "react";
 import { useCurrentSheet } from "@/hooks/useCurrentSheet";
-import { defaultSheet } from "@/lib/storage";
+import { useToast } from "@/hooks/useToast";
+import { addRecord, defaultSheet } from "@/lib/storage";
+import { createRecord } from "@/lib/records";
 import { PRESETS, sectionForQuestion, type ExamType } from "@/lib/presets";
 import { computeSectionBreakdown, computeSummary, type AnswerStatus } from "@/lib/scoring";
 import ExamHeader from "@/components/evaluate/ExamHeader";
@@ -11,7 +13,9 @@ import QuickSummary from "@/components/evaluate/QuickSummary";
 import SummaryCard from "@/components/evaluate/SummaryCard";
 import MarkButtons from "@/components/evaluate/MarkButtons";
 import UndoReset from "@/components/evaluate/UndoReset";
+import SaveButton from "@/components/evaluate/SaveButton";
 import AnswerSheet from "@/components/evaluate/AnswerSheet";
+import Toast from "@/components/Toast";
 import styles from "./page.module.css";
 
 function cycleStatus(status: AnswerStatus): AnswerStatus {
@@ -22,6 +26,7 @@ function cycleStatus(status: AnswerStatus): AnswerStatus {
 
 export default function EvaluatePage() {
   const [sheet, setSheet] = useCurrentSheet(defaultSheet("neet"));
+  const { message: toastMessage, showToast } = useToast();
   const sections = PRESETS[sheet.examType].sections;
 
   const summary = useMemo(
@@ -70,6 +75,11 @@ export default function EvaluatePage() {
     },
     [setSheet],
   );
+
+  const handleSave = useCallback(() => {
+    addRecord(createRecord(sheet));
+    showToast("Saved to Records");
+  }, [sheet, showToast]);
 
   const handleExamTypeChange = useCallback(
     (examType: ExamType) => {
@@ -145,6 +155,10 @@ export default function EvaluatePage() {
         answers={sheet.answers}
         onTapBubble={handleTapBubble}
       />
+
+      <SaveButton disabled={sheet.answers.length === 0} onSave={handleSave} />
+
+      <Toast message={toastMessage} />
     </main>
   );
 }
