@@ -44,15 +44,15 @@ describe("computeSummary", () => {
 });
 
 describe("computeSectionBreakdown", () => {
-  it("matches the documented NEET example shape for a fully graded sheet", () => {
-    const { sections, correctMark, wrongMark } = PRESETS.neet;
-    // Physics: 33 correct, 4 incorrect, 8 unattempted (45 total)
+  it("matches the documented JEE example shape for a fully graded sheet", () => {
+    const { sections, correctMark, wrongMark } = PRESETS.jee;
+    // Physics: 18 correct, 4 incorrect, 3 unattempted (25 total)
     const physics = [
-      ...Array(33).fill("correct"),
+      ...Array(18).fill("correct"),
       ...Array(4).fill("incorrect"),
-      ...Array(8).fill("unattempted"),
+      ...Array(3).fill("unattempted"),
     ];
-    const rest = Array(180 - 45).fill("unattempted");
+    const rest = Array(75 - 25).fill("unattempted");
     const answers = [...physics, ...rest] as const;
 
     const breakdown = computeSectionBreakdown([...answers], sections, correctMark, wrongMark);
@@ -61,17 +61,17 @@ describe("computeSectionBreakdown", () => {
     expect(physicsBreakdown).toEqual({
       name: "Physics",
       color: "#3b6fe0",
-      c: 33,
+      c: 18,
       w: 4,
-      u: 8,
-      marks: 33 * 4 - 4 * 1,
-      maxM: 180,
-      count: 45,
+      u: 3,
+      marks: 18 * 4 - 4 * 1,
+      maxM: 100,
+      count: 25,
     });
   });
 
   it("only counts questions that have been graded so far", () => {
-    const { sections, correctMark, wrongMark } = PRESETS.neet;
+    const { sections, correctMark, wrongMark } = PRESETS.jee;
     // Only the first 10 questions (all Physics) have been graded.
     const answers = Array(10).fill("correct");
 
@@ -80,9 +80,9 @@ describe("computeSectionBreakdown", () => {
     const chemistry = breakdown.find((s) => s.name === "Chemistry");
 
     expect(physics?.c).toBe(10);
-    expect(physics?.count).toBe(45);
+    expect(physics?.count).toBe(25);
     expect(chemistry?.c).toBe(0);
-    expect(chemistry?.count).toBe(45);
+    expect(chemistry?.count).toBe(25);
   });
 
   it("returns an empty array for Test presets (no sections)", () => {

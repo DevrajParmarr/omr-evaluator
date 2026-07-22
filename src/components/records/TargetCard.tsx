@@ -3,7 +3,6 @@ import type { TargetProgress } from "@/lib/analytics";
 import styles from "./TargetCard.module.css";
 
 const SUGGESTED_TARGET: Partial<Record<ExamType, number>> = {
-  neet: 650,
   jee: 250,
 };
 

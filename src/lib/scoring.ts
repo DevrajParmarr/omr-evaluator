@@ -1,6 +1,13 @@
 import type { Section } from "./presets";
+import type { Subject } from "./units";
 
 export type AnswerStatus = "correct" | "incorrect" | "unattempted";
+
+/** Per-question Subject+Unit tag, used by Subjective tests for topic-wise analysis. */
+export interface QuestionTag {
+  subject: Subject;
+  unit: string;
+}
 
 export interface ScoreSummary {
   score: number;

@@ -4,13 +4,15 @@ import {
   computeSubjectPerformance,
   computeTargetProgress,
   computeTrendSeries,
+  computeUnitPerformance,
   metricSeries,
   strongestAndWeakest,
   subjectSeries,
+  weakestUnits,
 } from "./analytics";
 import { createRecord } from "./records";
 import { defaultSheet } from "./storage";
-import type { AnswerStatus } from "./scoring";
+import type { AnswerStatus, QuestionTag } from "./scoring";
 
 function jeeRecord(
   title: string,
@@ -136,5 +138,59 @@ describe("subjectSeries / metricSeries", () => {
     const r1 = jeeRecord("A", "2026-01-01T00:00:00.000Z", 20, 10, 5);
     const series = metricSeries([r1], ["Physics", "Chemistry", "Maths"], "c");
     expect(series).toEqual([{ label: "A", Physics: 20, Chemistry: 10, Maths: 5 }]);
+  });
+});
+
+function subjectiveRecord(answers: AnswerStatus[], units: (QuestionTag | null)[]) {
+  return createRecord({ ...defaultSheet("subjective"), answers, units });
+}
+
+describe("computeUnitPerformance / weakestUnits", () => {
+  it("aggregates correct/incorrect/unattempted per (subject, unit) across records", () => {
+    const r1 = subjectiveRecord(
+      ["correct", "incorrect", "correct"],
+      [
+        { subject: "Physics", unit: "Kinematics" },
+        { subject: "Physics", unit: "Kinematics" },
+        { subject: "Maths", unit: "Trigonometry" },
+      ],
+    );
+    const r2 = subjectiveRecord(["incorrect"], [{ subject: "Physics", unit: "Kinematics" }]);
+
+    const performance = computeUnitPerformance([r1, r2]);
+    const kinematics = performance.find((p) => p.unit === "Kinematics")!;
+    const trig = performance.find((p) => p.unit === "Trigonometry")!;
+
+    expect(kinematics).toEqual({
+      subject: "Physics",
+      unit: "Kinematics",
+      attempted: 3,
+      correct: 1,
+      incorrect: 2,
+      unattempted: 0,
+      accuracy: 33,
+    });
+    expect(trig.accuracy).toBe(100);
+  });
+
+  it("ignores untagged questions and units nobody has attempted", () => {
+    const r1 = subjectiveRecord(["correct"], [null]);
+    expect(computeUnitPerformance([r1])).toEqual([]);
+  });
+
+  it("returns the lowest-accuracy attempted units first, capped to n", () => {
+    const r1 = subjectiveRecord(
+      ["correct", "incorrect", "incorrect"],
+      [
+        { subject: "Physics", unit: "Kinematics" },
+        { subject: "Maths", unit: "Trigonometry" },
+        { subject: "Chemistry", unit: "Equilibrium" },
+      ],
+    );
+    const performance = computeUnitPerformance([r1]);
+    const weakest = weakestUnits(performance, 2);
+
+    expect(weakest).toHaveLength(2);
+    expect(weakest.every((u) => u.accuracy === 0)).toBe(true);
   });
 });

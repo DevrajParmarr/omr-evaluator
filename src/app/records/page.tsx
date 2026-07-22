@@ -29,14 +29,17 @@ const SubjectRadar = dynamic(() => import("@/components/records/SubjectRadar"), 
 const SubjectProgress = dynamic(() => import("@/components/records/SubjectProgress"), {
   ssr: false,
 });
+const UnitBreakdown = dynamic(() => import("@/components/records/UnitBreakdown"), {
+  ssr: false,
+});
 
-const EMPTY_TARGETS: CurrentSheet["targets"] = { neet: null, jee: null, test: null };
+const EMPTY_TARGETS: CurrentSheet["targets"] = { jee: null, test: null, subjective: null };
 
 export default function RecordsPage() {
   const router = useRouter();
   const { records, remove, importFromJSON, exportJSON } = useRecords();
   const { message: toastMessage, showToast } = useToast();
-  const [examType, setExamType] = useState<ExamType>("neet");
+  const [examType, setExamType] = useState<ExamType>("jee");
   const [targets, setTargets] = useState<CurrentSheet["targets"]>(EMPTY_TARGETS);
 
   useEffect(() => {
@@ -140,6 +143,7 @@ export default function RecordsPage() {
             />
           )}
           {sections.length > 0 && <SubjectProgress records={filtered} sections={sections} />}
+          {examType === "subjective" && <UnitBreakdown records={filtered} />}
         </>
       )}
 

@@ -3,9 +3,10 @@
 Standing guidance for any AI session working in this repo. Read this first, every time. Keep it
 **current**: when we make a decision or add a convention, update this file in the same change.
 
-> **OMR Evaluator** is a client-only Next.js (static export) single-page app for grading OMR answer
-> sheets (NEET / JEE / custom tests), saving results, and tracking progress with charts. No
-> backend, no accounts — all data lives in the browser's `localStorage`.
+> **OMR Evaluator** is a client-only Next.js (static export) single-page app, scoped to **JEE-only**
+> students, for grading OMR/MCQ answer sheets and Subjective (topic-tagged) tests, saving results,
+> and tracking progress with charts. No backend, no accounts — all data lives in the browser's
+> `localStorage`.
 
 ---
 
@@ -74,28 +75,45 @@ npm test           # Vitest unit tests (scoring/section logic in src/lib)
 
 ## Domain rules — DO NOT get these wrong
 
-- **Marking:** Correct **+4**, Incorrect **−1**, Unattempted **0** (all editable).
+- **Marking:** Correct **+4**, Incorrect **−1**, Unattempted **0** (all editable). Applies to
+  **every** exam type, including Subjective — there is no separate partial-credit scoring model.
   `score = correct*correctMark − incorrect*wrongMark`; `attempted = correct + incorrect`;
   `accuracy% = round(correct/attempted*100)`.
 - **Question status:** exactly one of `"correct" | "incorrect" | "unattempted"` per question.
 - **Presets & section ranges (inclusive):**
-  - **NEET** — 180 Qs: Physics 1–45, Chemistry 46–90, Botany 91–135, Zoology 136–180.
-  - **JEE** — 75 Qs: Physics 1–25, Chemistry 26–50, Maths 51–75.
+  - **JEE** — 75 Qs, range-based sections: Physics 1–25, Chemistry 26–50, Maths 51–75.
   - **Test** — custom total, no sections.
+  - **Subjective** — custom total (default 25), no fixed ranges. Instead, each question can
+    carry an optional per-question **Subject + Unit tag** (see below) for topic-wise analysis.
+  - NEET was removed **2026-07-22** (app is now JEE-only) — see Decision log.
+- **Unit tagging (Subjective only):** `src/lib/units.ts` holds the static JEE syllabus —
+  `Subject = "Physics" | "Chemistry" | "Maths"`, each with its official unit list
+  (`SUBJECT_UNIT_GROUPS`; Chemistry is further split into Physical/Inorganic/Organic groups for
+  the dropdown). While grading a Subjective sheet, `UnitPicker` lets the user pick a Subject+Unit
+  that stays selected ("sticky") across consecutive questions; each `Correct`/`Incorrect`/
+  `Unattempted` press tags the just-graded question with the current selection (or `null` for
+  non-Subjective sheets). Tags are stored parallel-indexed to `answers` — see Data model.
 - **Keyboard shortcuts:** `1`=correct, `2`=incorrect, `3`=unattempted, `Z`/`Backspace`=undo
   (ignored while an input/textarea is focused).
-- **Records filter:** analytics are always scoped to one exam type — never plot NEET and JEE
-  (different max marks) on the same axis.
+- **Records filter:** analytics are always scoped to one exam type — never plot two exam types
+  (different max marks/structure) on the same axis.
 
 ## Data model (localStorage)
 
 - Key **`omr:current`** — in-progress sheet:
-  `{ schemaVersion, examType, title, student, totalQ, correctMark, wrongMark, answers[], targets:{neet,jee,test} }`.
+  `{ schemaVersion, examType, title, student, totalQ, correctMark, wrongMark, answers[], units[],
+ targets:{jee,test,subjective} }`.
 - Key **`omr:records`** — array of saved records:
   `{ id, schemaVersion, examType, title, student, savedAt(ISO), correctMark, wrongMark, totalQ,
- answers[], score, maxMarks, correct, incorrect, unattempted, graded, attempted, accuracy,
+ answers[], units[], score, maxMarks, correct, incorrect, unattempted, graded, attempted, accuracy,
  sections:[{ name, color, c, w, u, marks, maxM, count }] }`.
-- Include `schemaVersion` and migrate old data on load rather than discarding it.
+- `units[]` is a `(QuestionTag | null)[]` array, **parallel-indexed to `answers[]`**
+  (`QuestionTag = { subject, unit }`, from `src/lib/units.ts`). Always present; empty/all-null for
+  JEE and Test, populated per-question for Subjective sheets. Optional on load for backward
+  compatibility — missing/invalid entries default to `[]`/`null` rather than failing validation.
+- Include `schemaVersion` and migrate old data on load rather than discarding it. The exception is
+  `examType` itself: a value outside the current `ExamType` union (e.g. a retired NEET sheet/record)
+  falls back to a fresh sheet / is dropped, since that preset no longer exists in the app.
 - **Export/Import backup:** a JSON export/import of `omr:records` (and optionally `omr:current`) is
   in scope for v1, since storage is device-local and easy to lose.
 
@@ -103,7 +121,8 @@ npm test           # Vitest unit tests (scoring/section logic in src/lib)
 
 - paper `#E8E9E2` · surface `#FCFCFA` · ink `#212429` · muted `#71747B` · line `#D9D7CD`
 - correct/green `#1C8A4A` · incorrect/red `#D33F3B` · unattempted/grey `#9A9CA1`
-- subjects: Physics `#3B6FE0` · Chemistry `#E0871E` · Botany `#1C8A4A` · Zoology `#B0479B` · Maths `#B0479B`
+- subjects: Physics `#3B6FE0` · Chemistry `#E0871E` · Maths `#B0479B` (also used for unit-tagged
+  Subjective-test breakdowns via `SUBJECT_COLORS` in `src/lib/units.ts`)
 - Motifs: OMR dot-grid background, real bubble styling, soft-shadow cards (~16px radius), tabular
   mono numbers. Micro-interactions: press "pop" (Web Animations API), mobile haptic
   (`navigator.vibrate`), score pop, bubble pop-in, and a tap color-flash that **eases back to
@@ -181,3 +200,11 @@ _Record dated, one-line decisions as we make them so future sessions stay consis
   for solo work. Simplified to **direct pushes to `main`, no CI, no Dependabot, no branch
   protection** — see _Version control & GitHub_ above. Local `lint`/`test`/`build` before pushing is
   the safety net instead.
+- **2026-07-22** — Scope narrowed to **JEE-only students**: the **NEET preset was removed**
+  entirely (type, preset, UI, `EXAM_TYPES`); any old NEET sheet/record is dropped on load rather
+  than migrated, since there's no real user base yet. Added a new **Subjective** exam type
+  (custom total, no fixed sections) reusing the exact same +4/−1/0 marking engine — no new scoring
+  formula. Added per-question **Subject + Unit tagging** (`src/lib/units.ts`, the official JEE
+  syllabus) for Subjective sheets only, surfaced via a sticky `UnitPicker` in Evaluate and a new
+  `UnitBreakdown` weakest-units chart in Records. JEE's MCQ flow (range-based sections) is
+  unchanged; unit tagging was deliberately scoped to Subjective only, not added to JEE.

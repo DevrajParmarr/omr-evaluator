@@ -2,14 +2,6 @@ import { describe, expect, it } from "vitest";
 import { PRESETS, sectionForQuestion } from "./presets";
 
 describe("presets", () => {
-  it("NEET sections cover exactly 1-180 with no gaps or overlaps", () => {
-    const { sections, totalQ } = PRESETS.neet;
-    for (let q = 1; q <= totalQ; q++) {
-      const matches = sections.filter((s) => q >= s.startQ && q <= s.endQ);
-      expect(matches).toHaveLength(1);
-    }
-  });
-
   it("JEE sections cover exactly 1-75 with no gaps or overlaps", () => {
     const { sections, totalQ } = PRESETS.jee;
     for (let q = 1; q <= totalQ; q++) {
@@ -21,21 +13,25 @@ describe("presets", () => {
   it("Test preset has no sections", () => {
     expect(PRESETS.test.sections).toEqual([]);
   });
+
+  it("Subjective preset has no fixed sections (topic comes from per-question tags)", () => {
+    expect(PRESETS.subjective.sections).toEqual([]);
+  });
 });
 
 describe("sectionForQuestion", () => {
   it("finds the right section at range boundaries", () => {
-    const { sections } = PRESETS.neet;
+    const { sections } = PRESETS.jee;
     expect(sectionForQuestion(sections, 1)?.name).toBe("Physics");
-    expect(sectionForQuestion(sections, 45)?.name).toBe("Physics");
-    expect(sectionForQuestion(sections, 46)?.name).toBe("Chemistry");
-    expect(sectionForQuestion(sections, 180)?.name).toBe("Zoology");
+    expect(sectionForQuestion(sections, 25)?.name).toBe("Physics");
+    expect(sectionForQuestion(sections, 26)?.name).toBe("Chemistry");
+    expect(sectionForQuestion(sections, 75)?.name).toBe("Maths");
   });
 
   it("returns undefined outside the range", () => {
-    const { sections } = PRESETS.neet;
+    const { sections } = PRESETS.jee;
     expect(sectionForQuestion(sections, 0)).toBeUndefined();
-    expect(sectionForQuestion(sections, 181)).toBeUndefined();
+    expect(sectionForQuestion(sections, 76)).toBeUndefined();
   });
 
   it("returns undefined for empty sections (Test preset)", () => {

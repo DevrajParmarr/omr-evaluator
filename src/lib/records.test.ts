@@ -32,18 +32,33 @@ describe("createRecord", () => {
 describe("sheetFromRecord", () => {
   it("reconstructs a current sheet from a saved record, preserving passed-in targets", () => {
     const sheet = {
-      ...defaultSheet("neet"),
+      ...defaultSheet("test"),
       title: "Mock 3",
       answers: ["correct", "incorrect"] as const,
     };
     const record = createRecord({ ...sheet, answers: [...sheet.answers] });
-    const targets = { neet: 650, jee: null, test: null };
+    const targets = { jee: null, test: 90, subjective: null };
 
     const reopened = sheetFromRecord(record, targets);
 
-    expect(reopened.examType).toBe("neet");
+    expect(reopened.examType).toBe("test");
     expect(reopened.title).toBe("Mock 3");
     expect(reopened.answers).toEqual(["correct", "incorrect"]);
     expect(reopened.targets).toEqual(targets);
+  });
+
+  it("carries the per-question unit tags through for Subjective attempts", () => {
+    const sheet = {
+      ...defaultSheet("subjective"),
+      title: "Practice set",
+      answers: ["correct", "incorrect"] as const,
+      units: [{ subject: "Physics", unit: "Kinematics" }, null],
+    };
+    const record = createRecord({ ...sheet, answers: [...sheet.answers] });
+
+    expect(record.units).toEqual([{ subject: "Physics", unit: "Kinematics" }, null]);
+
+    const reopened = sheetFromRecord(record, { jee: null, test: null, subjective: null });
+    expect(reopened.units).toEqual([{ subject: "Physics", unit: "Kinematics" }, null]);
   });
 });

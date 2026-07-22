@@ -1,4 +1,5 @@
 import type { SavedRecord } from "./records";
+import { SUBJECT_UNIT_GROUPS, type Subject } from "./units";
 
 function byDateAscending(records: SavedRecord[]): SavedRecord[] {
   return [...records].sort((a, b) => a.savedAt.localeCompare(b.savedAt));
@@ -120,6 +121,65 @@ export function subjectSeries(records: SavedRecord[], subjectName: string): Subj
     const section = r.sections.find((s) => s.name === subjectName);
     return { label: labelFor(r, i), c: section?.c ?? 0, w: section?.w ?? 0, u: section?.u ?? 0 };
   });
+}
+
+export interface UnitPerformance {
+  subject: Subject;
+  unit: string;
+  attempted: number;
+  correct: number;
+  incorrect: number;
+  unattempted: number;
+  /** 0-100, rounded. 0 when nothing has been attempted for this unit. */
+  accuracy: number;
+}
+
+/** Aggregates Subjective-test question tags by (subject, unit) across every given record. */
+export function computeUnitPerformance(records: SavedRecord[]): UnitPerformance[] {
+  const counts = new Map<string, { correct: number; incorrect: number; unattempted: number }>();
+
+  for (const record of records) {
+    record.units.forEach((tag, i) => {
+      if (!tag) return;
+      const key = `${tag.subject}::${tag.unit}`;
+      const entry = counts.get(key) ?? { correct: 0, incorrect: 0, unattempted: 0 };
+      const status = record.answers[i];
+      if (status === "correct") entry.correct++;
+      else if (status === "incorrect") entry.incorrect++;
+      else if (status === "unattempted") entry.unattempted++;
+      counts.set(key, entry);
+    });
+  }
+
+  const result: UnitPerformance[] = [];
+  for (const subject of Object.keys(SUBJECT_UNIT_GROUPS) as Subject[]) {
+    for (const group of SUBJECT_UNIT_GROUPS[subject]) {
+      for (const unit of group.units) {
+        const key = `${subject}::${unit}`;
+        const entry = counts.get(key);
+        if (!entry) continue;
+        const attempted = entry.correct + entry.incorrect;
+        result.push({
+          subject,
+          unit,
+          attempted,
+          correct: entry.correct,
+          incorrect: entry.incorrect,
+          unattempted: entry.unattempted,
+          accuracy: attempted > 0 ? Math.round((entry.correct / attempted) * 100) : 0,
+        });
+      }
+    }
+  }
+  return result;
+}
+
+/** Weakest attempted units first (lowest accuracy), capped to `n`. */
+export function weakestUnits(performance: UnitPerformance[], n = 5): UnitPerformance[] {
+  return performance
+    .filter((p) => p.attempted > 0)
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .slice(0, n);
 }
 
 export type MetricSeriesPoint = { label: string } & Record<string, number | string>;

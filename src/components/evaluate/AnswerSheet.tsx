@@ -1,11 +1,12 @@
 import type { Section } from "@/lib/presets";
-import type { AnswerStatus } from "@/lib/scoring";
+import type { AnswerStatus, QuestionTag } from "@/lib/scoring";
 import styles from "./AnswerSheet.module.css";
 
 interface Props {
   totalQ: number;
   sections: Section[];
   answers: AnswerStatus[];
+  units: (QuestionTag | null)[];
   onTapBubble: (index: number) => void;
 }
 
@@ -19,22 +20,25 @@ function bubbleClassName(status: AnswerStatus | undefined): string {
 function Bubble({
   questionNumber,
   answers,
+  units,
   onTapBubble,
 }: {
   questionNumber: number;
   answers: AnswerStatus[];
+  units: (QuestionTag | null)[];
   onTapBubble: (index: number) => void;
 }) {
   const index = questionNumber - 1;
   const isGraded = index < answers.length;
   const status = answers[index];
+  const tag = units[index];
 
   return (
     <button
       type="button"
       className={`${styles.bubble} ${bubbleClassName(status)}`}
       disabled={!isGraded}
-      aria-label={`Question ${questionNumber}${status ? `, ${status}` : ", not yet graded"}`}
+      aria-label={`Question ${questionNumber}${status ? `, ${status}` : ", not yet graded"}${tag ? `, ${tag.subject}: ${tag.unit}` : ""}`}
       onClick={() => onTapBubble(index)}
     >
       {questionNumber}
@@ -42,7 +46,7 @@ function Bubble({
   );
 }
 
-export default function AnswerSheet({ totalQ, sections, answers, onTapBubble }: Props) {
+export default function AnswerSheet({ totalQ, sections, answers, units, onTapBubble }: Props) {
   const questionNumbers = Array.from({ length: totalQ }, (_, i) => i + 1);
 
   if (sections.length === 0) {
@@ -50,7 +54,13 @@ export default function AnswerSheet({ totalQ, sections, answers, onTapBubble }: 
       <section className={styles.sheet} aria-label="Answer sheet">
         <div className={styles.grid}>
           {questionNumbers.map((q) => (
-            <Bubble key={q} questionNumber={q} answers={answers} onTapBubble={onTapBubble} />
+            <Bubble
+              key={q}
+              questionNumber={q}
+              answers={answers}
+              units={units}
+              onTapBubble={onTapBubble}
+            />
           ))}
         </div>
       </section>
@@ -72,7 +82,13 @@ export default function AnswerSheet({ totalQ, sections, answers, onTapBubble }: 
             </h3>
             <div className={styles.grid}>
               {sectionQuestions.map((q) => (
-                <Bubble key={q} questionNumber={q} answers={answers} onTapBubble={onTapBubble} />
+                <Bubble
+                  key={q}
+                  questionNumber={q}
+                  answers={answers}
+                  units={units}
+                  onTapBubble={onTapBubble}
+                />
               ))}
             </div>
           </div>

@@ -1,6 +1,7 @@
-import type { AnswerStatus } from "./scoring";
+import type { AnswerStatus, QuestionTag } from "./scoring";
 import type { ExamType } from "./presets";
 import { PRESETS } from "./presets";
+import { isValidUnit } from "./units";
 import type { SavedRecord } from "./records";
 
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -16,10 +17,12 @@ export interface CurrentSheet {
   correctMark: number;
   wrongMark: number;
   answers: AnswerStatus[];
-  targets: { neet: number | null; jee: number | null; test: number | null };
+  /** Parallel-indexed to `answers`; only populated for Subjective sheets. */
+  units: (QuestionTag | null)[];
+  targets: { jee: number | null; test: number | null; subjective: number | null };
 }
 
-export function defaultSheet(examType: ExamType = "neet"): CurrentSheet {
+export function defaultSheet(examType: ExamType = "jee"): CurrentSheet {
   const preset = PRESETS[examType];
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -30,12 +33,26 @@ export function defaultSheet(examType: ExamType = "neet"): CurrentSheet {
     correctMark: preset.correctMark,
     wrongMark: preset.wrongMark,
     answers: [],
-    targets: { neet: null, jee: null, test: null },
+    units: [],
+    targets: { jee: null, test: null, subjective: null },
   };
 }
 
 const ANSWER_STATUSES: AnswerStatus[] = ["correct", "incorrect", "unattempted"];
-const EXAM_TYPES: ExamType[] = ["neet", "jee", "test"];
+const EXAM_TYPES: ExamType[] = ["jee", "test", "subjective"];
+
+/** A `units` array is valid if every entry is either null or a real Subject+Unit pair. */
+function isValidUnitsArray(value: unknown): value is (QuestionTag | null)[] {
+  return (
+    Array.isArray(value) &&
+    value.every((u) => {
+      if (u === null) return true;
+      if (typeof u !== "object") return false;
+      const tag = u as Record<string, unknown>;
+      return isValidUnit(tag.subject, tag.unit);
+    })
+  );
+}
 
 function isValidSheet(value: unknown): value is CurrentSheet {
   if (typeof value !== "object" || value === null) return false;
@@ -56,10 +73,15 @@ function isValidSheet(value: unknown): value is CurrentSheet {
   );
 }
 
-/** Migrates an older/partial sheet to the current schema. Unknown shapes fall back to a fresh sheet. */
+/**
+ * Migrates an older/partial sheet to the current schema. Unknown shapes (including sheets
+ * with a dropped exam type like the retired NEET preset) fall back to a fresh sheet. `units`
+ * is optional on load — older saved sheets without it default to an empty array.
+ */
 function migrate(value: unknown): CurrentSheet {
-  if (isValidSheet(value)) return value;
-  return defaultSheet();
+  if (!isValidSheet(value)) return defaultSheet();
+  const units = isValidUnitsArray(value.units) ? value.units : [];
+  return { ...value, units };
 }
 
 export function loadCurrentSheet(): CurrentSheet {
@@ -99,6 +121,7 @@ function isValidRecord(value: unknown): value is SavedRecord {
     typeof v.totalQ === "number" &&
     Array.isArray(v.answers) &&
     v.answers.every((a) => ANSWER_STATUSES.includes(a as AnswerStatus)) &&
+    (v.units === undefined || isValidUnitsArray(v.units)) &&
     typeof v.score === "number" &&
     typeof v.maxMarks === "number" &&
     typeof v.correct === "number" &&
@@ -119,7 +142,8 @@ export function loadRecords(): SavedRecord[] {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
     // Corrupt individual entries are dropped rather than discarding the whole list.
-    return parsed.filter(isValidRecord);
+    // `units` is optional on load — older saved records without it default to an empty array.
+    return parsed.filter(isValidRecord).map((r) => ({ ...r, units: r.units ?? [] }));
   } catch {
     return [];
   }
@@ -166,7 +190,7 @@ export function importBackupJSON(json: string): ImportResult {
       ? (parsed as { records: unknown[] }).records
       : [];
 
-  const valid = incoming.filter(isValidRecord);
+  const valid = incoming.filter(isValidRecord).map((r) => ({ ...r, units: r.units ?? [] }));
   const invalid = incoming.length - valid.length;
 
   const existing = loadRecords();

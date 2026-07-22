@@ -1,4 +1,4 @@
-export type ExamType = "neet" | "jee" | "test";
+export type ExamType = "jee" | "test" | "subjective";
 
 export interface Section {
   name: string;
@@ -18,17 +18,6 @@ export interface Preset {
 }
 
 export const PRESETS: Record<ExamType, Preset> = {
-  neet: {
-    totalQ: 180,
-    correctMark: 4,
-    wrongMark: 1,
-    sections: [
-      { name: "Physics", color: "#3b6fe0", startQ: 1, endQ: 45 },
-      { name: "Chemistry", color: "#e0871e", startQ: 46, endQ: 90 },
-      { name: "Botany", color: "#1c8a4a", startQ: 91, endQ: 135 },
-      { name: "Zoology", color: "#b0479b", startQ: 136, endQ: 180 },
-    ],
-  },
   jee: {
     totalQ: 75,
     correctMark: 4,
@@ -45,12 +34,19 @@ export const PRESETS: Record<ExamType, Preset> = {
     wrongMark: 1,
     sections: [],
   },
+  subjective: {
+    totalQ: 25,
+    correctMark: 4,
+    wrongMark: 1,
+    // No fixed ranges: topic comes from a per-question Subject+Unit tag instead (see units.ts).
+    sections: [],
+  },
 };
 
 export const EXAM_LABELS: Record<ExamType, string> = {
-  neet: "NEET",
   jee: "JEE",
   test: "Test",
+  subjective: "Subjective",
 };
 
 /** 1-indexed question number. Returns undefined for Test (no sections) or out-of-range input. */

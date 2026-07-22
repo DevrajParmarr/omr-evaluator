@@ -4,6 +4,7 @@ import {
   computeSectionBreakdown,
   computeSummary,
   type AnswerStatus,
+  type QuestionTag,
   type SectionBreakdown,
 } from "./scoring";
 import type { CurrentSheet } from "./storage";
@@ -20,6 +21,8 @@ export interface SavedRecord {
   wrongMark: number;
   totalQ: number;
   answers: AnswerStatus[];
+  /** Parallel-indexed to `answers`; only populated for Subjective attempts. */
+  units: (QuestionTag | null)[];
   score: number;
   maxMarks: number;
   correct: number;
@@ -55,6 +58,7 @@ export function createRecord(
     wrongMark: sheet.wrongMark,
     totalQ: sheet.totalQ,
     answers: sheet.answers,
+    units: sheet.units,
     ...summary,
     sections,
   };
@@ -74,6 +78,7 @@ export function sheetFromRecord(
     correctMark: record.correctMark,
     wrongMark: record.wrongMark,
     answers: record.answers,
+    units: record.units,
     targets,
   };
 }

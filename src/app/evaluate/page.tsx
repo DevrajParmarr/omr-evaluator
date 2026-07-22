@@ -1,17 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCurrentSheet } from "@/hooks/useCurrentSheet";
 import { useToast } from "@/hooks/useToast";
 import { addRecord, defaultSheet } from "@/lib/storage";
 import { createRecord } from "@/lib/records";
 import { PRESETS, sectionForQuestion, type ExamType } from "@/lib/presets";
-import { computeSectionBreakdown, computeSummary, type AnswerStatus } from "@/lib/scoring";
+import {
+  computeSectionBreakdown,
+  computeSummary,
+  type AnswerStatus,
+  type QuestionTag,
+} from "@/lib/scoring";
 import ExamHeader from "@/components/evaluate/ExamHeader";
 import ScoreHero from "@/components/evaluate/ScoreHero";
 import QuickSummary from "@/components/evaluate/QuickSummary";
 import SummaryCard from "@/components/evaluate/SummaryCard";
 import MarkButtons from "@/components/evaluate/MarkButtons";
+import UnitPicker from "@/components/evaluate/UnitPicker";
 import UndoReset from "@/components/evaluate/UndoReset";
 import SaveButton from "@/components/evaluate/SaveButton";
 import AnswerSheet from "@/components/evaluate/AnswerSheet";
@@ -25,9 +31,11 @@ function cycleStatus(status: AnswerStatus): AnswerStatus {
 }
 
 export default function EvaluatePage() {
-  const [sheet, setSheet] = useCurrentSheet(defaultSheet("neet"));
+  const [sheet, setSheet] = useCurrentSheet(defaultSheet("jee"));
   const { message: toastMessage, showToast } = useToast();
+  const [pendingTag, setPendingTag] = useState<QuestionTag | null>(null);
   const sections = PRESETS[sheet.examType].sections;
+  const isSubjective = sheet.examType === "subjective";
 
   const summary = useMemo(
     () => computeSummary(sheet.answers, sheet.correctMark, sheet.wrongMark),
@@ -47,21 +55,30 @@ export default function EvaluatePage() {
     (status: AnswerStatus) => {
       setSheet((prev) => {
         if (prev.answers.length >= prev.totalQ) return prev;
-        return { ...prev, answers: [...prev.answers, status] };
+        const tag = prev.examType === "subjective" ? pendingTag : null;
+        return {
+          ...prev,
+          answers: [...prev.answers, status],
+          units: [...prev.units, tag],
+        };
       });
     },
-    [setSheet],
+    [setSheet, pendingTag],
   );
 
   const handleUndo = useCallback(() => {
     setSheet((prev) => {
       if (prev.answers.length === 0) return prev;
-      return { ...prev, answers: prev.answers.slice(0, -1) };
+      return {
+        ...prev,
+        answers: prev.answers.slice(0, -1),
+        units: prev.units.slice(0, -1),
+      };
     });
   }, [setSheet]);
 
   const handleReset = useCallback(() => {
-    setSheet((prev) => ({ ...prev, answers: [] }));
+    setSheet((prev) => ({ ...prev, answers: [], units: [] }));
   }, [setSheet]);
 
   const handleTapBubble = useCallback(
@@ -89,6 +106,7 @@ export default function EvaluatePage() {
       ) {
         return;
       }
+      setPendingTag(null);
       setSheet((prev) => ({ ...defaultSheet(examType), title: prev.title, student: prev.student }));
     },
     [sheet.answers.length, setSheet],
@@ -136,6 +154,8 @@ export default function EvaluatePage() {
         isComplete={isComplete}
       />
 
+      {isSubjective && <UnitPicker value={pendingTag} onChange={setPendingTag} />}
+
       <MarkButtons
         correctMark={sheet.correctMark}
         wrongMark={sheet.wrongMark}
@@ -153,6 +173,7 @@ export default function EvaluatePage() {
         totalQ={sheet.totalQ}
         sections={sections}
         answers={sheet.answers}
+        units={sheet.units}
         onTapBubble={handleTapBubble}
       />
 
