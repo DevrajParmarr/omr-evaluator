@@ -20,6 +20,8 @@ import MarkButtons from "@/components/evaluate/MarkButtons";
 import UnitPicker from "@/components/evaluate/UnitPicker";
 import UndoReset from "@/components/evaluate/UndoReset";
 import SaveButton from "@/components/evaluate/SaveButton";
+import PdfButton from "@/components/evaluate/PdfButton";
+import PrintReport from "@/components/evaluate/PrintReport";
 import AnswerSheet from "@/components/evaluate/AnswerSheet";
 import Toast from "@/components/Toast";
 import styles from "./page.module.css";
@@ -139,9 +141,15 @@ export default function EvaluatePage() {
         onExamTypeChange={handleExamTypeChange}
         onTitleChange={(title) => setSheet((prev) => ({ ...prev, title }))}
         onStudentChange={(student) => setSheet((prev) => ({ ...prev, student }))}
-        onCorrectMarkChange={(correctMark) => setSheet((prev) => ({ ...prev, correctMark }))}
-        onWrongMarkChange={(wrongMark) => setSheet((prev) => ({ ...prev, wrongMark }))}
-        onTotalQChange={(totalQ) => setSheet((prev) => ({ ...prev, totalQ }))}
+        onCorrectMarkChange={(correctMark) =>
+          Number.isFinite(correctMark) && setSheet((prev) => ({ ...prev, correctMark }))
+        }
+        onWrongMarkChange={(wrongMark) =>
+          Number.isFinite(wrongMark) && setSheet((prev) => ({ ...prev, wrongMark }))
+        }
+        onTotalQChange={(totalQ) =>
+          Number.isInteger(totalQ) && totalQ >= 1 && setSheet((prev) => ({ ...prev, totalQ }))
+        }
       />
 
       <ScoreHero
@@ -177,9 +185,14 @@ export default function EvaluatePage() {
         onTapBubble={handleTapBubble}
       />
 
-      <SaveButton disabled={sheet.answers.length === 0} onSave={handleSave} />
+      <div className={styles.actions}>
+        <SaveButton disabled={sheet.answers.length === 0} onSave={handleSave} />
+        <PdfButton disabled={sheet.answers.length === 0} />
+      </div>
 
       <Toast message={toastMessage} />
+
+      <PrintReport sheet={sheet} summary={summary} breakdown={breakdown} />
     </main>
   );
 }

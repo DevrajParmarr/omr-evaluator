@@ -106,32 +106,138 @@ export default function SubjectProgress({ records, sections }: Props) {
       )}
 
       {mode === "bySubject" && (
-        <LineByStatus data={subjectSeries(records, selectedSubject)} height={260} />
+        <>
+          <LineByStatus data={subjectSeries(records, selectedSubject)} height={260} />
+          <AttemptTable data={subjectSeries(records, selectedSubject)} subject={selectedSubject} />
+        </>
       )}
 
       {mode === "stacked" && (
-        <StackedBar data={subjectSeries(records, selectedSubject)} height={260} />
+        <>
+          <StackedBar data={subjectSeries(records, selectedSubject)} height={260} />
+          <AttemptTable data={subjectSeries(records, selectedSubject)} subject={selectedSubject} />
+        </>
       )}
 
       {mode === "byMetric" && (
-        <MetricLines
-          data={metricSeries(records, subjectNames, selectedMetric)}
-          sections={sections}
-          height={260}
-        />
+        <>
+          <MetricLines
+            data={metricSeries(records, subjectNames, selectedMetric)}
+            sections={sections}
+            height={260}
+          />
+          <MetricTable
+            data={metricSeries(records, subjectNames, selectedMetric)}
+            subjectNames={subjectNames}
+            metricLabel={METRIC_LABELS[selectedMetric]}
+          />
+        </>
       )}
 
       {mode === "overview" && (
-        <div className={styles.overviewGrid}>
-          {subjectNames.map((name) => (
-            <div key={name} className={styles.overviewItem}>
-              <p className={styles.overviewLabel}>{name}</p>
-              <LineByStatus data={subjectSeries(records, name)} height={120} compact />
-            </div>
-          ))}
-        </div>
+        <>
+          <div className={styles.overviewGrid}>
+            {subjectNames.map((name) => (
+              <div key={name} className={styles.overviewItem}>
+                <p className={styles.overviewLabel}>{name}</p>
+                <LineByStatus data={subjectSeries(records, name)} height={120} compact />
+              </div>
+            ))}
+          </div>
+          <table className="sr-only">
+            <caption>Correct/incorrect/unattempted by subject and attempt</caption>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Attempt</th>
+                <th>Correct</th>
+                <th>Incorrect</th>
+                <th>Unattempted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {subjectNames.flatMap((name) =>
+                subjectSeries(records, name).map((point) => (
+                  <tr key={`${name}-${point.label}`}>
+                    <td>{name}</td>
+                    <td>{point.label}</td>
+                    <td>{point.c}</td>
+                    <td>{point.w}</td>
+                    <td>{point.u}</td>
+                  </tr>
+                )),
+              )}
+            </tbody>
+          </table>
+        </>
       )}
     </section>
+  );
+}
+
+function AttemptTable({
+  data,
+  subject,
+}: {
+  data: ReturnType<typeof subjectSeries>;
+  subject: string;
+}) {
+  return (
+    <table className="sr-only">
+      <caption>{subject}: correct/incorrect/unattempted by attempt</caption>
+      <thead>
+        <tr>
+          <th>Attempt</th>
+          <th>Correct</th>
+          <th>Incorrect</th>
+          <th>Unattempted</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((point) => (
+          <tr key={point.label}>
+            <td>{point.label}</td>
+            <td>{point.c}</td>
+            <td>{point.w}</td>
+            <td>{point.u}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function MetricTable({
+  data,
+  subjectNames,
+  metricLabel,
+}: {
+  data: ReturnType<typeof metricSeries>;
+  subjectNames: string[];
+  metricLabel: string;
+}) {
+  return (
+    <table className="sr-only">
+      <caption>{metricLabel} by subject and attempt</caption>
+      <thead>
+        <tr>
+          <th>Attempt</th>
+          {subjectNames.map((name) => (
+            <th key={name}>{name}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((point) => (
+          <tr key={String(point.label)}>
+            <td>{point.label}</td>
+            {subjectNames.map((name) => (
+              <td key={name}>{point[name]}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 

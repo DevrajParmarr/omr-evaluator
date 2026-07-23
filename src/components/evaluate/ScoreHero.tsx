@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+import { popAnimation } from "@/lib/motion";
 import styles from "./ScoreHero.module.css";
 
 interface Props {
@@ -20,10 +22,19 @@ export default function ScoreHero({
   isComplete,
 }: Props) {
   const progressPercent = totalQ > 0 ? Math.min(100, Math.round((graded / totalQ) * 100)) : 0;
+  const scoreRef = useRef<HTMLParagraphElement>(null);
+  const previousScore = useRef(score);
+
+  useEffect(() => {
+    if (previousScore.current !== score) {
+      popAnimation(scoreRef.current);
+      previousScore.current = score;
+    }
+  }, [score]);
 
   return (
     <section className={styles.hero} aria-label="Score">
-      <p className={styles.score} data-numeric aria-live="polite">
+      <p ref={scoreRef} className={styles.score} data-numeric aria-live="polite">
         {score} <span className={styles.max}>/ {maxMarks}</span>
       </p>
 

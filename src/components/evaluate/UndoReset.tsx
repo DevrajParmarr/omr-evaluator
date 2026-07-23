@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { popAnimation } from "@/lib/motion";
 import styles from "./UndoReset.module.css";
 
 const CONFIRM_WINDOW_MS = 3000;
@@ -17,7 +18,13 @@ export default function UndoReset({ canUndo, onUndo, onReset }: Props) {
 
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
 
-  function handleResetClick() {
+  function handleUndoClick(event: MouseEvent<HTMLButtonElement>) {
+    popAnimation(event.currentTarget);
+    onUndo();
+  }
+
+  function handleResetClick(event: MouseEvent<HTMLButtonElement>) {
+    popAnimation(event.currentTarget);
     if (!confirming) {
       setConfirming(true);
       timeoutRef.current = setTimeout(() => setConfirming(false), CONFIRM_WINDOW_MS);
@@ -30,7 +37,7 @@ export default function UndoReset({ canUndo, onUndo, onReset }: Props) {
 
   return (
     <div className={styles.controls}>
-      <button type="button" className={styles.button} disabled={!canUndo} onClick={onUndo}>
+      <button type="button" className={styles.button} disabled={!canUndo} onClick={handleUndoClick}>
         Undo
       </button>
       <button

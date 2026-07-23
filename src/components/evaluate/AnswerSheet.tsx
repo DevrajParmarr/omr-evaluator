@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import type { Section } from "@/lib/presets";
 import type { AnswerStatus, QuestionTag } from "@/lib/scoring";
+import { popAnimation } from "@/lib/motion";
 import styles from "./AnswerSheet.module.css";
 
 interface Props {
@@ -32,9 +34,19 @@ function Bubble({
   const isGraded = index < answers.length;
   const status = answers[index];
   const tag = units[index];
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const wasGraded = useRef(isGraded);
+
+  useEffect(() => {
+    if (isGraded && !wasGraded.current) {
+      popAnimation(buttonRef.current);
+    }
+    wasGraded.current = isGraded;
+  }, [isGraded]);
 
   return (
     <button
+      ref={buttonRef}
       type="button"
       className={`${styles.bubble} ${bubbleClassName(status)}`}
       disabled={!isGraded}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createRecord, sheetFromRecord } from "./records";
 import { defaultSheet } from "./storage";
+import type { QuestionTag } from "./scoring";
 
 describe("createRecord", () => {
   it("computes score/summary/sections from the sheet's answers", () => {
@@ -52,7 +53,7 @@ describe("sheetFromRecord", () => {
       ...defaultSheet("subjective"),
       title: "Practice set",
       answers: ["correct", "incorrect"] as const,
-      units: [{ subject: "Physics", unit: "Kinematics" }, null],
+      units: [{ subject: "Physics", unit: "Kinematics" } as QuestionTag, null],
     };
     const record = createRecord({ ...sheet, answers: [...sheet.answers] });
 

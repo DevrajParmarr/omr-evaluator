@@ -208,3 +208,14 @@ _Record dated, one-line decisions as we make them so future sessions stay consis
   syllabus) for Subjective sheets only, surfaced via a sticky `UnitPicker` in Evaluate and a new
   `UnitBreakdown` weakest-units chart in Records. JEE's MCQ flow (range-based sections) is
   unchanged; unit tagging was deliberately scoped to Subjective only, not added to JEE.
+- **2026-07-23** — Phase 4 (PDF export & polish) done: print-only report (`PrintReport`) shown via
+  `@media print` + `window.print()`; a `src/lib/motion.ts` helper (Web Animations API pop, a
+  color-flash-to-neutral, `navigator.vibrate`, all skipped under `prefers-reduced-motion`) wired
+  into mark buttons, the score hero, answer-sheet bubbles, and Save/Undo/Reset; accessible sr-only
+  fallback tables added to the `SubjectProgress` and `UnitBreakdown` charts (`TrendChart`/
+  `SubjectRadar` already had them); `totalQ`/`correctMark`/`wrongMark` inputs now reject
+  non-finite/non-integer/`<1` values (previously `totalQ<=0` could crash `AnswerSheet`'s
+  `Array.from({length: totalQ})`); removed dead `--color-botany`/`--color-zoology` CSS variables
+  left over from the NEET removal. **PWA (Serwist) is still outstanding** — it was a Phase 0
+  decision but was never assigned to a specific phase in the plan; flagged to the user rather than
+  silently added to or dropped from this phase.

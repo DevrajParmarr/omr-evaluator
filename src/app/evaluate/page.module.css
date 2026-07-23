@@ -6,3 +6,9 @@
   margin: 0 auto;
   padding: 1rem;
 }
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}

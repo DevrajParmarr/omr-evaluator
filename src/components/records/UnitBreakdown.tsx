@@ -98,6 +98,30 @@ export default function UnitBreakdown({ records }: Props) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+
+      <table className="sr-only">
+        <caption>Accuracy by unit, weakest first</caption>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Unit</th>
+            <th>Accuracy</th>
+            <th>Correct</th>
+            <th>Attempted</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map((entry) => (
+            <tr key={`${entry.subject}-${entry.unit}`}>
+              <td>{entry.subject}</td>
+              <td>{entry.unit}</td>
+              <td>{entry.accuracy}%</td>
+              <td>{entry.correct}</td>
+              <td>{entry.attempted}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }

@@ -11,8 +11,6 @@
 
   --color-physics: #3b6fe0;
   --color-chemistry: #e0871e;
-  --color-botany: #1c8a4a;
-  --color-zoology: #b0479b;
   --color-maths: #b0479b;
 
   --font-display: var(--font-space-grotesk), system-ui, sans-serif;
@@ -95,5 +93,38 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Print report: hidden on screen, the only thing visible when printing. Uses
+   visibility (not display) so it works regardless of where it's nested in the DOM. */
+.print-only {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+  }
+
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    margin: 1.5cm;
   }
 }
