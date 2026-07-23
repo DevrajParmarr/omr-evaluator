@@ -35,6 +35,11 @@
 }
 
 .examField {
+  /* Segmented pills (esp. "Subjective") can't shrink below their content like a text
+     input can — flex:1's 0% basis would otherwise let the row squeeze this narrower
+     than the pills actually are, causing them to overflow the row and visually
+     overlap the Title field next to it. min-width:max-content reserves real space,
+     wrapping Title/Student onto their own line instead when the row is tight. */
   flex: 1;
-  min-width: 8rem;
+  min-width: max-content;
 }

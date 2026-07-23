@@ -1,6 +1,6 @@
 import type { ExamType } from "@/lib/presets";
 import { EXAM_LABELS } from "@/lib/presets";
-import styles from "./ExamTypePicker.module.css";
+import SegmentedControl from "@/components/SegmentedControl";
 
 interface Props {
   value: ExamType;
@@ -19,23 +19,14 @@ export default function ExamTypePicker({
   className,
 }: Props) {
   return (
-    <fieldset className={`${styles.field} ${className ?? ""}`}>
-      <legend className={styles.legend}>{label}</legend>
-      <div className={styles.segmented}>
-        {(Object.keys(EXAM_LABELS) as ExamType[]).map((type) => (
-          <label key={type} className={styles.segment}>
-            <input
-              type="radio"
-              name={name}
-              value={type}
-              checked={value === type}
-              onChange={() => onChange(type)}
-              className="sr-only"
-            />
-            <span>{EXAM_LABELS[type]}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    <SegmentedControl
+      value={value}
+      onChange={onChange}
+      options={Object.keys(EXAM_LABELS) as ExamType[]}
+      getLabel={(type) => EXAM_LABELS[type]}
+      label={label}
+      name={name}
+      className={className}
+    />
   );
 }

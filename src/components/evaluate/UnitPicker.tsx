@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { SUBJECTS, SUBJECT_UNIT_GROUPS, type Subject } from "@/lib/units";
 import type { QuestionTag } from "@/lib/scoring";
+import SegmentedControl from "@/components/SegmentedControl";
 import styles from "./UnitPicker.module.css";
 
 interface Props {
@@ -9,9 +10,9 @@ interface Props {
 }
 
 /**
- * Subject + Unit dropdowns for tagging the next question in a Subjective test, so Records
- * can later break performance down by topic. Selection stays sticky across questions —
- * callers keep applying `value` until the user changes it.
+ * Subject (pill buttons) + Unit (dropdown) for tagging the next question in a Subjective
+ * test, so Records can later break performance down by topic. Selection stays sticky
+ * across questions — callers keep applying `value` until the user changes it.
  */
 export default function UnitPicker({ value, onChange }: Props) {
   const subject = value?.subject ?? SUBJECTS[0];
@@ -25,16 +26,14 @@ export default function UnitPicker({ value, onChange }: Props) {
 
   return (
     <div className={styles.picker} role="group" aria-label="Question topic">
-      <label className={styles.field}>
-        <span>Subject</span>
-        <select value={subject} onChange={(e) => handleSubjectChange(e.target.value as Subject)}>
-          {SUBJECTS.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-      </label>
+      <SegmentedControl
+        value={subject}
+        onChange={handleSubjectChange}
+        options={SUBJECTS}
+        label="Subject"
+        name="unitPickerSubject"
+        className={styles.subjectField}
+      />
 
       <label className={styles.field}>
         <span>Unit</span>

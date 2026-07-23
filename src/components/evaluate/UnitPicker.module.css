@@ -26,3 +26,10 @@
   color: var(--color-ink);
   font: inherit;
 }
+
+.subjectField {
+  /* Pills can't shrink below their content like a select can — see the matching
+     comment in evaluate/ExamHeader.module.css for why this isn't just min-width:10rem. */
+  flex: 1;
+  min-width: max-content;
+}
