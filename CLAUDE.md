@@ -46,7 +46,15 @@ npm test           # Vitest unit tests (scoring/section logic in src/lib)
 - recharts (charts), lucide-react (icons), CSS Modules (no Tailwind/UI kit).
 - Fonts via `next/font/google`: Space Grotesk (display), JetBrains Mono (numbers), Inter (body).
 - State: local component state + React Context (no external store library).
-- PWA: **Serwist** (App-Router-compatible service worker tooling) for installability/offline.
+- PWA: **Serwist** (`@serwist/next` + `serwist`) for installability/offline — service worker
+  source at `src/app/sw.ts`, manifest at `src/app/manifest.ts` (needs
+  `export const dynamic = "force-static"` for static export), icons generated from
+  `public/icons/icon-source.svg` via `npm run icons` (uses `sharp`, a devDependency). `dev`/`build`
+  **force webpack** (`next dev --webpack` / `next build --webpack`) because `@serwist/next` doesn't
+  support Turbopack (Next 16's default) and the Turbopack build fails outright; `@serwist/turbopack`
+  exists but is explicitly experimental with a different (React-hook-based) API, so webpack was the
+  pragmatic choice — see Decision log. `public/sw.js` is a build artifact Serwist writes into the
+  tracked `public/` dir; it's gitignored and eslint-ignored, not committed.
 - Persistence: **`localStorage` only**. Never add a backend, DB, or `window.storage`.
 
 ## Architecture & conventions
@@ -220,3 +228,10 @@ _Record dated, one-line decisions as we make them so future sessions stay consis
   decision but was never assigned to a specific phase in the plan; flagged to the user, who chose
   to fold it into **Phase 5 (Ship)** alongside the Netlify connection and `v1.0.0` tag, rather than
   building it as a standalone step now.
+- **2026-07-23** — Phase 5 PWA implementation: `@serwist/next`'s webpack-only build broke outright
+  under Next 16's default Turbopack (`next build` failed, not just warned). Chose to **force
+  webpack** for `dev`/`build` over adopting `@serwist/turbopack` (explicitly experimental, different
+  React-hook-based API) or dropping PWA — the reliability of a proven integration won out over
+  staying on Turbopack for a small app where the build-speed difference is negligible. App icon is
+  a simple generated bubble motif (paper background, filled ink circle) via `sharp` + a checked-in
+  SVG source, not a placeholder or a full brand identity pass.

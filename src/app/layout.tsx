@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono, Inter } from "next/font/google";
 import Nav from "@/components/Nav";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -22,6 +23,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "OMR Evaluator",
   description: "Grade OMR answer sheets and track progress, entirely in your browser.",
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#e8e9e2",
 };
 
 export default function RootLayout({
@@ -35,6 +43,7 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.variable}`}
     >
       <body>
+        <ServiceWorkerRegistration />
         <Nav />
         <ErrorBoundary>{children}</ErrorBoundary>
       </body>
