@@ -34,16 +34,24 @@ export default function ExamHeader({
   return (
     <section className={styles.header} aria-label="Sheet details">
       <div className={styles.row}>
-        <label className={styles.field}>
-          <span>Exam</span>
-          <select value={examType} onChange={(e) => onExamTypeChange(e.target.value as ExamType)}>
+        <fieldset className={styles.examField}>
+          <legend className={styles.examLegend}>Exam</legend>
+          <div className={styles.segmented}>
             {(Object.keys(EXAM_LABELS) as ExamType[]).map((type) => (
-              <option key={type} value={type}>
-                {EXAM_LABELS[type]}
-              </option>
+              <label key={type} className={styles.segment}>
+                <input
+                  type="radio"
+                  name="examType"
+                  value={type}
+                  checked={examType === type}
+                  onChange={() => onExamTypeChange(type)}
+                  className="sr-only"
+                />
+                <span>{EXAM_LABELS[type]}</span>
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+        </fieldset>
 
         <label className={styles.field}>
           <span>Title</span>

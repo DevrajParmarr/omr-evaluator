@@ -34,6 +34,8 @@ export default function ScoreHero({
 
   return (
     <section className={styles.hero} aria-label="Score">
+      <p className={styles.label}>Total Score</p>
+
       <p ref={scoreRef} className={styles.score} data-numeric aria-live="polite">
         {score} <span className={styles.max}>/ {maxMarks}</span>
       </p>

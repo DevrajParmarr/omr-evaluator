@@ -64,6 +64,7 @@ export default function AnswerSheet({ totalQ, sections, answers, units, onTapBub
   if (sections.length === 0) {
     return (
       <section className={styles.sheet} aria-label="Answer sheet">
+        <h2 className={styles.heading}>Answer Sheet</h2>
         <div className={styles.grid}>
           {questionNumbers.map((q) => (
             <Bubble
@@ -81,6 +82,7 @@ export default function AnswerSheet({ totalQ, sections, answers, units, onTapBub
 
   return (
     <section className={styles.sheet} aria-label="Answer sheet">
+      <h2 className={styles.heading}>Answer Sheet</h2>
       {sections.map((section) => {
         const sectionQuestions = questionNumbers.filter(
           (q) => q >= section.startQ && q <= section.endQ,
