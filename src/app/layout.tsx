@@ -47,6 +47,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.variable}`}
+      suppressHydrationWarning
     >
       <body>
         {/* Blocking, runs before first paint: sets data-theme so there's no flash of the wrong theme. */}
