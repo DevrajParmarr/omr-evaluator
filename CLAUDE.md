@@ -217,5 +217,6 @@ _Record dated, one-line decisions as we make them so future sessions stay consis
   non-finite/non-integer/`<1` values (previously `totalQ<=0` could crash `AnswerSheet`'s
   `Array.from({length: totalQ})`); removed dead `--color-botany`/`--color-zoology` CSS variables
   left over from the NEET removal. **PWA (Serwist) is still outstanding** — it was a Phase 0
-  decision but was never assigned to a specific phase in the plan; flagged to the user rather than
-  silently added to or dropped from this phase.
+  decision but was never assigned to a specific phase in the plan; flagged to the user, who chose
+  to fold it into **Phase 5 (Ship)** alongside the Netlify connection and `v1.0.0` tag, rather than
+  building it as a standalone step now.
