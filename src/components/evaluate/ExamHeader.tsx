@@ -1,5 +1,5 @@
 import type { ExamType } from "@/lib/presets";
-import { EXAM_LABELS } from "@/lib/presets";
+import ExamTypePicker from "@/components/ExamTypePicker";
 import styles from "./ExamHeader.module.css";
 
 interface Props {
@@ -34,24 +34,7 @@ export default function ExamHeader({
   return (
     <section className={styles.header} aria-label="Sheet details">
       <div className={styles.row}>
-        <fieldset className={styles.examField}>
-          <legend className={styles.examLegend}>Exam</legend>
-          <div className={styles.segmented}>
-            {(Object.keys(EXAM_LABELS) as ExamType[]).map((type) => (
-              <label key={type} className={styles.segment}>
-                <input
-                  type="radio"
-                  name="examType"
-                  value={type}
-                  checked={examType === type}
-                  onChange={() => onExamTypeChange(type)}
-                  className="sr-only"
-                />
-                <span>{EXAM_LABELS[type]}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <ExamTypePicker value={examType} onChange={onExamTypeChange} className={styles.examField} />
 
         <label className={styles.field}>
           <span>Title</span>

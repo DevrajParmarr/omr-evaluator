@@ -42,6 +42,13 @@
   border-color: var(--color-ink);
 }
 
+@media (hover: hover) {
+  .modeButton:not(.modeActive):hover {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+}
+
 .selectField {
   display: flex;
   align-items: center;

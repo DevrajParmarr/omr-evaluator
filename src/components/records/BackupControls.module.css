@@ -17,3 +17,9 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+@media (hover: hover) {
+  .button:hover {
+    background-color: var(--color-paper);
+  }
+}

@@ -31,9 +31,10 @@
 }
 
 .progressTrack {
-  height: 8px;
+  height: 10px;
   border-radius: 999px;
   background-color: var(--color-paper);
+  box-shadow: inset 0 1px 3px rgb(33 36 41 / 12%);
   overflow: hidden;
 }
 
