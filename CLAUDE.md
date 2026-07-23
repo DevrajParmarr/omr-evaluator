@@ -44,6 +44,14 @@ npm test           # Vitest unit tests (scoring/section logic in src/lib)
   `next.config.ts`) — no SSR, no API routes, no server runtime. Chosen over Vite per an explicit
   stack decision on 2026-07-22 (see Decision log).
 - recharts (charts), lucide-react (icons), CSS Modules (no Tailwind/UI kit).
+- **motion** (motion.dev, the merged Motion One/Framer Motion package) for imperative
+  micro-interactions that plain CSS transitions can't express well — e.g. the `SegmentedControl`
+  sliding pill indicator and `Toast` enter/exit. Import from `motion/mini` (the small vanilla
+  `animate()` API, not the React component API) since usage here is DOM-ref-based inside existing
+  CSS-Modules components, not `<motion.div>`-style markup. `src/lib/motion.ts`'s native Web
+  Animations helpers (`popAnimation`, `flashAnimation`, `vibrate`) are unchanged and still used for
+  simple one-shot effects; reach for `motion/mini` only when an animation needs to interpolate
+  between two measured layout states (e.g. width/position).
 - Fonts via `next/font/google`: Space Grotesk (display), JetBrains Mono (numbers), Inter (body).
 - State: local component state + React Context (no external store library).
 - PWA: **Serwist** (`@serwist/next` + `serwist`) for installability/offline — service worker
@@ -255,3 +263,22 @@ _Record dated, one-line decisions as we make them so future sessions stay consis
   toggle from a single place; the existing `prefers-reduced-motion` global rule makes it instant for
   those users, no extra logic needed. Subject colors (Physics/Chemistry/Maths) and the print report
   are unchanged between themes — see Design tokens.
+- **2026-07-24** — Added **`motion`** (motion.dev) as a new dependency, after explicit sign-off, to
+  cover layout-interpolation animations that `src/lib/motion.ts`'s Web Animations helpers weren't
+  built for (animating between two measured DOM rects rather than a fixed keyframe). Chose the
+  `motion/mini` vanilla-DOM entry point over the React `<motion.div>` API so it drops into existing
+  ref-based CSS-Modules components without restructuring markup, and over Framer Motion's full
+  bundle to keep the static-export bundle small. First uses: a shared `SegmentedControl` (the
+  generic pill control now backing both `ExamTypePicker` and `UnitPicker`'s subject picker) got a
+  sliding active-pill indicator that animates its `x`/`width` between segments instead of an
+  instant background snap; `Toast` was reworked to support `"success" | "error" | "info"` variants
+  (color-coded icon, same inverted ink/surface pill background in both themes) with a slide+fade
+  enter/exit instead of appearing/disappearing instantly — `useToast`'s `showToast(message, type?)`
+  now carries the variant, and `Toast` only clears its rendered message after its exit animation
+  finishes (not instantly on message-clear), so the old message doesn't just vanish. All of this
+  still respects `prefers-reduced-motion` (durations collapse to an instant set, matching the
+  existing global rule's intent) and none of it touches `src/lib/motion.ts`, which stays the tool
+  for simple one-shot press/flash effects. Toast coverage was also extended to record deletion in
+  Records (previously silent beyond the row disappearing) — the theme toggle deliberately was
+  **not** given a toast, since flipping the entire UI's colors is already strong, immediate
+  feedback and a toast on top would be redundant noise.

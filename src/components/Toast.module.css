@@ -8,6 +8,10 @@
 }
 
 .toast {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: min(90vw, 26rem);
   padding: 0.6rem 1rem;
   background-color: var(--color-ink);
   color: var(--color-surface);
@@ -15,4 +19,20 @@
   font-size: 0.9rem;
   font-weight: 600;
   box-shadow: var(--shadow-card);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.success .icon {
+  color: var(--color-correct);
+}
+
+.error .icon {
+  color: var(--color-incorrect);
+}
+
+.info .icon {
+  color: var(--color-physics);
 }

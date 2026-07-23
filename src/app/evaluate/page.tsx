@@ -34,7 +34,7 @@ function cycleStatus(status: AnswerStatus): AnswerStatus {
 
 export default function EvaluatePage() {
   const [sheet, setSheet] = useCurrentSheet(defaultSheet("jee"));
-  const { message: toastMessage, showToast } = useToast();
+  const { toast, showToast } = useToast();
   const [pendingTag, setPendingTag] = useState<QuestionTag | null>(null);
   const sections = PRESETS[sheet.examType].sections;
   const isSubjective = sheet.examType === "subjective";
@@ -190,7 +190,7 @@ export default function EvaluatePage() {
         <PdfButton disabled={sheet.answers.length === 0} />
       </div>
 
-      <Toast message={toastMessage} />
+      <Toast toast={toast} />
 
       <PrintReport sheet={sheet} summary={summary} breakdown={breakdown} />
     </main>

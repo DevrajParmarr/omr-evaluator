@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useRecords } from "@/hooks/useRecords";
 import { useToast } from "@/hooks/useToast";
+import type { ToastType } from "@/components/Toast";
 import { loadCurrentSheet, saveCurrentSheet, type CurrentSheet } from "@/lib/storage";
 import { sheetFromRecord, type SavedRecord } from "@/lib/records";
 import { EXAM_LABELS, PRESETS, type ExamType } from "@/lib/presets";
@@ -38,7 +39,7 @@ const EMPTY_TARGETS: CurrentSheet["targets"] = { jee: null, test: null, subjecti
 export default function RecordsPage() {
   const router = useRouter();
   const { records, remove, importFromJSON, exportJSON } = useRecords();
-  const { message: toastMessage, showToast } = useToast();
+  const { toast, showToast } = useToast();
   const [examType, setExamType] = useState<ExamType>("jee");
   const [targets, setTargets] = useState<CurrentSheet["targets"]>(EMPTY_TARGETS);
 
@@ -103,13 +104,22 @@ export default function RecordsPage() {
           const parts = [`Imported ${result.added} record${result.added === 1 ? "" : "s"}`];
           if (result.duplicates > 0) parts.push(`${result.duplicates} already existed`);
           if (result.invalid > 0) parts.push(`${result.invalid} invalid`);
-          showToast(parts.join(", "));
+          const type: ToastType = result.added === 0 && result.invalid > 0 ? "error" : "success";
+          showToast(parts.join(", "), type);
         } catch {
-          showToast("Import failed: not a valid backup file");
+          showToast("Import failed: not a valid backup file", "error");
         }
       });
     },
     [importFromJSON, showToast],
+  );
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      remove(id);
+      showToast("Record deleted", "info");
+    },
+    [remove, showToast],
   );
 
   return (
@@ -147,9 +157,9 @@ export default function RecordsPage() {
         </>
       )}
 
-      <HistoryList records={filtered} onReopen={handleReopen} onDelete={remove} />
+      <HistoryList records={filtered} onReopen={handleReopen} onDelete={handleDelete} />
 
-      <Toast message={toastMessage} />
+      <Toast toast={toast} />
     </main>
   );
 }
