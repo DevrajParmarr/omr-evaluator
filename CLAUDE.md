@@ -124,19 +124,30 @@ npm test           # Vitest unit tests (scoring/section logic in src/lib)
   falls back to a fresh sheet / is dropped, since that preset no longer exists in the app.
 - **Export/Import backup:** a JSON export/import of `omr:records` (and optionally `omr:current`) is
   in scope for v1, since storage is device-local and easy to lose.
+- Key **`omr:theme`** — `"light" | "dark"`, written only when the user explicitly toggles the theme
+  (`useTheme` in `src/hooks/useTheme.ts`). Absent by default: an inline blocking script in
+  `layout.tsx` sets `data-theme` on `<html>` from this key if present, else from the OS
+  `prefers-color-scheme`, before first paint (no flash of the wrong theme); with no stored key yet,
+  the app keeps following live OS-preference changes until the user makes an explicit choice.
 
 ## Design tokens
 
 - paper `#E8E9E2` · surface `#FCFCFA` · ink `#212429` · muted `#71747B` · line `#D9D7CD`
 - correct/green `#1C8A4A` · incorrect/red `#D33F3B` · unattempted/grey `#9A9CA1`
 - subjects: Physics `#3B6FE0` · Chemistry `#E0871E` · Maths `#B0479B` (also used for unit-tagged
-  Subjective-test breakdowns via `SUBJECT_COLORS` in `src/lib/units.ts`)
+  Subjective-test breakdowns via `SUBJECT_COLORS` in `src/lib/units.ts`) — **unchanged between
+  themes**, kept identical in light and dark since they're brand/subject identity, not surface color.
 - Motifs: OMR dot-grid background, real bubble styling, soft-shadow cards (~16px radius), tabular
   mono numbers. Micro-interactions: press "pop" (Web Animations API), mobile haptic
   (`navigator.vibrate`), score pop, bubble pop-in, and a tap color-flash that **eases back to
   neutral** (never leaves a button stuck-colored). Gate `:hover` tints behind `@media (hover:hover)`
   so they don't stick on touch.
-- **Dark mode:** deferred; v1 ships the single light "exam paper" palette above.
+- **Dark mode:** shipped (`:root[data-theme="dark"]` in `globals.css`) — paper `#17181B` · surface
+  `#202226` · ink `#E9E9E6` · muted `#9B9EA3` · line `#34373B`; correct `#34A866` · incorrect
+  `#E35D55` · unattempted `#8B8E93` (lightened vs. light-mode values to hold contrast on a dark
+  surface). `--color-paper/surface/ink/muted/line` are registered via CSS `@property` so toggling
+  cross-fades the whole app instead of snapping; `@media (prefers-reduced-motion: reduce)` makes it
+  instant instead. See Data model for the `omr:theme` key and toggle behavior.
 
 ## PDF export
 
@@ -235,3 +246,12 @@ _Record dated, one-line decisions as we make them so future sessions stay consis
   staying on Turbopack for a small app where the build-speed difference is negligible. App icon is
   a simple generated bubble motif (paper background, filled ink circle) via `sharp` + a checked-in
   SVG source, not a placeholder or a full brand identity pass.
+- **2026-07-24** — Dark mode **shipped**, reversing the 2026-07-22 deferral: a binary Light/Dark
+  toggle in `Nav` (no third "System" state), defaulting to `prefers-color-scheme` until the user
+  makes an explicit choice (stored in `omr:theme`), after which it sticks. `data-theme` is applied
+  to `<html>` by a blocking inline script in `layout.tsx` before first paint (no flash of the wrong
+  theme). Chose CSS `@property` on the surface tokens (`--color-paper/surface/ink/muted/line`) plus
+  one universal `transition` rule over per-component transitions, so the whole app cross-fades on
+  toggle from a single place; the existing `prefers-reduced-motion` global rule makes it instant for
+  those users, no extra logic needed. Subject colors (Physics/Chemistry/Maths) and the print report
+  are unchanged between themes — see Design tokens.

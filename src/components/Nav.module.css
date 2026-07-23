@@ -3,12 +3,19 @@
   background-color: var(--color-surface);
 }
 
-.list {
+.row {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   max-width: 760px;
   margin: 0 auto;
   padding: 0.5rem 1rem;
+}
+
+.list {
+  display: flex;
+  gap: 0.5rem;
   list-style: none;
 }
 
